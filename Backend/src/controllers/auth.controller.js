@@ -1,17 +1,16 @@
 // all This commemted is for my review purpose only, I will remove it later
-import bcryptjs from "bcryptjs"
-import { User } from "../models/user.model.js"
+
+import { User } from "../model/user.model.js"
 import { generateJwtToken } from "../../utils/generateJwtToken.js"
-import { sendPasswordResetConfirmationEmail, sendVerificationEmail, sendWelcomeEmail } from "../mailtrap/email.js"
-import crypto from "crypto"
-import { sendPasswordResetEmail } from "../mailtrap/email.js"
+import { sendVerificationEmail} from "../mailtrap/email.js"
+
 
 
 
 export const signup = async (req, res) => {
-    const { email, password, name } = req.body
+    const { email, password, username } = req.body
     try {
-        if (!email || !password || !name) {
+        if (!email || !password || !username) {
             return res.status(400).json({ success: false, message: "Please provide all the fields" })
         }
 
@@ -25,8 +24,8 @@ export const signup = async (req, res) => {
 
         const user = await User({
             email,
-            password: hash,
-            name,
+            password,
+            username,
 
             // Verification token and its expiry time for email verification
             verificationToken: verificationToken,

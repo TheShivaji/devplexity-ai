@@ -4,7 +4,7 @@ import { signup } from '../controllers/auth.controller.js';
 
 const authRouter = express.Router();
 
-authRouter.post('/Signup' , registerValidator , signup);
+authRouter.post('/signup' , registerValidator , signup);
 
 
 
