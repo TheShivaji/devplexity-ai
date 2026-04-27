@@ -1,6 +1,7 @@
-"use client";
 import { useState } from "react";
 import { Link } from "react-router-dom";
+import { useAuth } from "../hook/useAuth";
+import { useNavigate } from "react-router-dom";
 
 export default function Signup() {
   const [form, setForm] = useState({
@@ -9,6 +10,9 @@ export default function Signup() {
     password: "",
   });
 
+  const {handleSignUp , loading , error} = useAuth();
+  const navigate = useNavigate();
+
   const handleChange = (e) => {
     setForm({
       ...form,
@@ -16,9 +20,17 @@ export default function Signup() {
     });
   };
 
-  const handleSubmit = (e) => {
+  const handleSubmit = async (e) => {
     e.preventDefault();
     console.log("Signup Data:", form);
+
+    try {
+      const response = await handleSignUp(form);
+      console.log("Signup Response:", response);
+      navigate("/");
+    } catch (error) {
+      console.log("Signup Error:", error);
+    }
   };
 
   return (
@@ -70,6 +82,8 @@ export default function Signup() {
             onChange={handleChange}
             className="w-full p-3 rounded-lg bg-black/40 border border-gray-700 focus:border-white focus:ring-1 focus:ring-white outline-none transition"
           />
+
+          {error && <p className="text-red-500 text-center">{error}</p>}
 
           <button className="w-full py-3 rounded-lg bg-white text-black font-semibold hover:bg-gray-200 transition">
             Create Account

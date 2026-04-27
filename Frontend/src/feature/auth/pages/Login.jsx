@@ -1,12 +1,16 @@
-"use client";
 import { useState } from "react";
 import { Link } from "react-router-dom";
+import { useAuth } from "../hook/useAuth";
+import { useNavigate } from "react-router-dom";
 
 export default function Login() {
   const [form, setForm] = useState({
     email: "",
     password: "",
   });
+
+  const {handleLogin  , error} = useAuth();
+  const navigate = useNavigate();
 
   const handleChange = (e) => {
     setForm({
@@ -15,12 +19,22 @@ export default function Login() {
     });
   };
 
-  const handleSubmit = (e) => {
+  const handleSubmit = async (e) => {
     e.preventDefault();
     console.log("Login Data:", form);
+
+    try {
+      const response = await handleLogin(form);
+      console.log("Login Response:", response);
+      navigate("/");
+    } catch (error) {
+      console.log("Login Error:", error);
+    }
+
   };
 
   return (
+    
     <div className="relative min-h-screen flex items-center justify-center bg-black overflow-hidden text-white">
 
       {/* 🔥 Animated BG */}
@@ -60,6 +74,8 @@ export default function Login() {
             onChange={handleChange}
             className="w-full p-3 rounded-lg bg-black/40 border border-gray-700 focus:border-white focus:ring-1 focus:ring-white outline-none transition"
           />
+
+          {error && <p className="text-red-500 text-center">{error}</p>}
 
           <button className="w-full py-3 rounded-lg bg-white text-black font-semibold hover:bg-gray-200 transition">
             Login
