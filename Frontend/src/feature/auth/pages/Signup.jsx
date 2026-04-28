@@ -1,7 +1,7 @@
 import { useState } from "react";
-import { Link } from "react-router-dom";
+import { Link, Navigate, useNavigate } from "react-router-dom";
 import { useAuth } from "../hook/useAuth";
-import { useNavigate } from "react-router-dom";
+import { useSelector } from "react-redux";
 
 export default function Signup() {
   const [form, setForm] = useState({
@@ -9,8 +9,10 @@ export default function Signup() {
     email: "",
     password: "",
   });
+  const user = useSelector(state => state.auth.user)
+  const loading = useSelector(state => state.auth.loading)
 
-  const {handleSignUp , loading , error} = useAuth();
+  const { handleSignUp } = useAuth();
   const navigate = useNavigate();
 
   const handleChange = (e) => {
@@ -32,7 +34,9 @@ export default function Signup() {
       console.log("Signup Error:", error);
     }
   };
-
+  if (!loading && user) {
+    return <Navigate to="/" replace />
+  }
   return (
     <div className="relative min-h-screen flex items-center justify-center bg-black overflow-hidden text-white">
 

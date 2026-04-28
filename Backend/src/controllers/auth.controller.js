@@ -3,6 +3,7 @@
 import { User } from "../model/user.model.js"
 import { generateJwtToken } from "../../utils/generateJwtToken.js"
 import { sendVerificationEmail , sendWelcomeEmail} from "../mailtrap/email.js"
+import bcryptjs from "bcryptjs"
 
 
 
