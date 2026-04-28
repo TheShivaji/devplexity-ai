@@ -19,4 +19,3 @@ export const sender = {
     name: "My MERN App",
 };
 
-
