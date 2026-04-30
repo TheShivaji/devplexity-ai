@@ -50,3 +50,61 @@ export const sendMessage = async (req, res) => {
         return res.status(500).json({ success: false, message: "Internal server error" });
     }
 }
+
+export const getChats = async (req, res) => {
+    try {
+        const userId = req.user.id || req.user._id;
+        const chats = await chatModel.find({ user: userId })
+        return res.status(200).json({
+            success: true,
+            chats
+        });
+    } catch (error) {
+        console.log("Error in getChats:", error.message);
+        return res.status(500).json({ success: false, message: "Internal server error" });
+    }
+}
+
+export const getMessages = async (req, res) => {
+    try {
+        const { chatId } = req.params;
+        const userId = req.user.id || req.user._id;
+        const chat = await chatModel.findOne({
+            _id: chatId,
+            user: userId
+        });
+        if (!chat) {
+            return res.status(404).json({ success: false, message: "Chat not found or unauthorized" });
+        }
+        const messages = await messageModel.find({ chat: chatId });
+        return res.status(200).json({
+            success: true,
+            messages
+        });
+    } catch (error) {
+        console.log("Error in getMessages:", error.message);
+        return res.status(500).json({ success: false, message: "Internal server error" });
+    }
+}
+export const deleteChat = async (req, res) => {
+    try {
+        const { chatId } = req.params;
+        const userId = req.user.id || req.user._id;
+        const chat = await chatModel.findByIdAndDelete({
+            _id: chatId,
+            user: userId
+        })
+        if (!chat) {
+            return res.status(404).json({ success: false, message: "Chat not found or unauthorized" });
+        }
+        await messageModel.deleteMany({ chat: chatId });
+
+        return res.status(200).json({
+            success: true,
+            message: "Chat deleted successfully"
+        });
+    } catch (error) {
+        console.log("Error in deleteChat:", error.message);
+        return res.status(500).json({ success: false, message: "Internal server error" });
+    }
+}
