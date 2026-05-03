@@ -1,36 +1,54 @@
 import { createSlice } from "@reduxjs/toolkit";
 
+
 const initialState = {
-    chats: [],
-    currentChat: null,
-    messages: [],
-    status: "idle",
-    error: null,
+    chats: {},
+    currentChatId: null,
     isLoading: false,
-    
+    error: null,
 }
 
 const chatSlice = createSlice({
     name: "chat",
     initialState,
     reducers: {
+        createNewChat: (state, action) => {
+            const {chatId , title} = action.payload
+            
+            state.chats[chatId] = {
+                id: chatId,
+                messages: [],
+                title,
+                lastUpdate: new Date().toISOString()
+            };
+        },
         setChats: (state, action) => {
             state.chats = action.payload;
         },
-        setCurrentChat: (state, action) => {
-            state.currentChat = action.payload;
-        },
-        setMessages: (state, action) => {
-            state.messages = action.payload;
+        setCurrentChatId: (state, action) => {
+            state.currentChatId = action.payload;
         },
         addMessage: (state, action) => {
-            state.messages.push(action.payload);
+            const { chatId, content, role } = action.payload;
+            if (state.chats[chatId]) {
+                state.chats[chatId].messages.push({
+                    id: Date.now().toString() + Math.random(),
+                    content,
+                    role
+                });
+            }
         },
         deleteChat: (state, action) => {
-            state.chats = state.chats.filter(chat => chat._id !== action.payload);
+            delete state.chats[action.payload];
+        },
+        setLoading : (state, action) => {
+            state.isLoading = action.payload;
+        },
+        setError : (state , action) => {
+            state.error = action.payload
         }
     }
 })
 
-export const { setChats, setCurrentChat, setMessages, addMessage, deleteChat } = chatSlice.actions;
+export const { createNewChat, setChats, setCurrentChatId, addMessage, deleteChat , setLoading , setError } = chatSlice.actions;
 export default chatSlice.reducer;

@@ -66,8 +66,10 @@ export const getChats = async (req, res) => {
 }
 
 export const getMessages = async (req, res) => {
+    ;
     try {
         const { chatId } = req.params;
+        console.log("chatId:", chatId)
         const userId = req.user.id || req.user._id;
         const chat = await chatModel.findOne({
             _id: chatId,

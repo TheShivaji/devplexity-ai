@@ -2,13 +2,13 @@ import axios from "axios";
 
 
 const api = axios.create({
-    baseURL: "http://localhost:5000/api/chat",
+    baseURL: "http://localhost:3000/api/chat",
     withCredentials: true
 });
 
-export const sendMessageAPI = async (data) => {
+export const sendMessageAPI = async (message , chatId) => {
     try {
-        const response = await api.post("/send", data);
+        const response = await api.post("/send", {message , chatId});
         return response.data;
     } catch (error) {
         console.log("Error in sendMessage api" , error.message)

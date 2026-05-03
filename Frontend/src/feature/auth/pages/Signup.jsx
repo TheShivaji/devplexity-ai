@@ -12,7 +12,7 @@ export default function Signup() {
   const user = useSelector(state => state.auth.user)
   const loading = useSelector(state => state.auth.loading)
 
-  const { handleSignUp } = useAuth();
+  const { handleSignUp, error } = useAuth();
   const navigate = useNavigate();
 
   const handleChange = (e) => {

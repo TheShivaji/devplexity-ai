@@ -1,10 +1,10 @@
 import { createBrowserRouter } from "react-router-dom";
-import Home from "../features/auth/pages/Home";
-import Login from "../features/auth/pages/Login";
-import Signup from "../features/auth/pages/Signup";
-import Public from "../features/auth/components/Public";
-import Protected from "../features/auth/components/Protected";
-import Dashboard from "../features/chat/Pages/Dashboard";
+
+import Login from "../feature/auth/pages/Login.jsx";
+import Signup from "../feature/auth/pages/Signup.jsx";
+import Public from "../feature/auth/components/Public.jsx";
+import Protected from "../feature/auth/components/Protected.jsx";
+import Dashboard from "../feature/chat/Pages/Dashboard.jsx";
 
 
 export const router = createBrowserRouter([

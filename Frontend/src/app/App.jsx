@@ -1,7 +1,7 @@
 import React from 'react'
 import { RouterProvider } from 'react-router-dom';
 import { router } from './app.routes';
-import { useAuth } from '../features/auth/hook/useAuth';
+import { useAuth } from '../feature/auth/hook/useAuth.js';
 import { useEffect } from 'react';
 
 const App = () => {
