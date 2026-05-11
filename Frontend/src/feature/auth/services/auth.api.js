@@ -34,3 +34,13 @@ export const getMe = async () => {
         throw error;
     }
 };
+
+export const logout = async () => {
+    try {
+        const response = await api.post('/auth/logout');
+        return response.data;
+    } catch (error) {
+        console.log("Error in  logout api", error.response?.data?.message || error.message);
+        throw error.response?.data?.message;
+    }
+};

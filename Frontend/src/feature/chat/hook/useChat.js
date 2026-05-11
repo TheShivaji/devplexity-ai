@@ -84,11 +84,24 @@ export const useChat = () => {
         }
     }
 
+    const handleDeleteChat = async (chatId) => {
+        try {
+            dispatch(setLoading(true));
+            await deleteChatAPI(chatId);
+            dispatch(deleteChat(chatId));
+            dispatch(setLoading(false));
+        } catch (error) {
+            console.log("Error in handleDeleteChat", error.message);
+            dispatch(setLoading(false));
+        }
+    }
+
     return {
         handleSendMessage,
         initlizeSocket,
         handleGetChats,
         handleOpenChat,
+        handleDeleteChat,
     }
 }
 

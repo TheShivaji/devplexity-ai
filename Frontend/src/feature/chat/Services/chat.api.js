@@ -6,12 +6,12 @@ const api = axios.create({
     withCredentials: true
 });
 
-export const sendMessageAPI = async (message , chatId) => {
+export const sendMessageAPI = async (message, chatId) => {
     try {
-        const response = await api.post("/send", {message , chatId});
+        const response = await api.post("/send", { message, chat: chatId });
         return response.data;
     } catch (error) {
-        console.log("Error in sendMessage api" , error.message)
+        console.log("Error in sendMessage api", error.message)
         throw error.response?.data?.message || error.message
     }
 }   
