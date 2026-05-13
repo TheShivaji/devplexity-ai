@@ -2,7 +2,7 @@
 
 import { User } from "../model/user.model.js"
 import { generateJwtToken } from "../../utils/generateJwtToken.js"
-import { sendVerificationEmail , sendWelcomeEmail} from "../mailtrap/email.js"
+import { sendVerificationEmail, sendWelcomeEmail } from "../mailtrap/email.js"
 import bcryptjs from "bcryptjs"
 
 
@@ -20,7 +20,7 @@ export const signup = async (req, res) => {
             return res.status(400).json({ success: false, message: "User already exists" })
         }
 
-        
+
         const verificationToken = Math.floor(100000 + Math.random() * 900000).toString()
 
         const user = await User({
@@ -144,9 +144,9 @@ export const getMe = async (req, res) => {
 export const logout = async (req, res) => {
     try {
         res.cookie("jwt", "", {
+            sameSite: "none",
+            secure: true,
             httpOnly: true,
-            // secure: true,        // HTTPS in production
-            sameSite: "strict",  // CSRF protection
             maxAge: 0            // immediately expire
         });
 
