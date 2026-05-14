@@ -28,124 +28,127 @@ const agent = createAgent({
 
 });
 
-export async function getAIMessage(messages) {
+export async function getAIMessage(messages, searchEnable = false) {
     console.log(messages)
+    console.log("searchEnable", searchEnable)
 
-    const response = await agent.invoke({
-        messages: [
-            new SystemMessage(`
-                You are a helpful and precise assistant for answering questions.
-                If you don't know the answer, say you don't know. 
-                If the question requires up-to-date information, use the "searchInternet" tool to get the latest information from the internet and then answer based on the search results.
-                If real-time information is unavailable, clearly say that exact data may not be available.
-                Do not hallucinate future facts.
-            `),
-            ...(messages.map(msg => {
-                if (msg.role == "user") {
-                    return new HumanMessage(msg.content)
-                } else if (msg.role == "ai") {
-                    return new AIMessage(msg.content)
-                }
-            }))]
-    });
+    const formattedMessages = [
+        new SystemMessage(`
+    You are a helpful and precise assistant for answering questions.
+    If you don't know the answer, say you don't know.
+    Do not hallucinate future facts.
+  `),
+        ...(messages.map(msg => {
+            if (msg.role === "user") return new HumanMessage(msg.content)
+            if (msg.role === "ai") return new AIMessage(msg.content)
+        }))
+    ]
 
-    return response.messages[response.messages.length - 1].text;
+    if (searchEnable) {
+        // Agent mode — Tavily web search active
+        const response = await agent.invoke({ messages: formattedMessages })
+        return response.messages[response.messages.length - 1].text
+    } else {
+        // Simple mode — direct model, no search
+        const response = await geminiModel.invoke(formattedMessages)
+        return response.text
+    }
 }
 
-export const getTittle = async (message) => {
-    try {
-        const title = await mistralModel.invoke([
-            new SystemMessage("You are a deterministic chat title generator, Generate ONLY one short title max 5 words, Use simple English, Do not use creative variations,Base title only on the main topic of the conversation."),
-            new HumanMessage(`
+    export const getTittle = async (message) => {
+        try {
+            const title = await mistralModel.invoke([
+                new SystemMessage("You are a deterministic chat title generator, Generate ONLY one short title max 5 words, Use simple English, Do not use creative variations,Base title only on the main topic of the conversation."),
+                new HumanMessage(`
                 generate title for this chat conversation based on first user message only 
                 ${message}
             `)
-        ])
-        return title.text;
-    } catch (error) {
-        console.log("error in getting title : ", error.message);
+            ])
+            return title.text;
+        } catch (error) {
+            console.log("error in getting title : ", error.message);
+        }
     }
-}
-export const getChat = async (req, res) => {
-    try {
-        const user = req.user.id;
+    export const getChat = async (req, res) => {
+        try {
+            const user = req.user.id;
 
-        const chat = await chatModel.findOne({ user: user });
+            const chat = await chatModel.findOne({ user: user });
 
-        if (!chat) {
+            if (!chat) {
+                return res.status(200).json({
+                    success: false,
+                    message: "chat not found"
+                })
+            }
+
+            const messages = await messageModel.find({ chat: chat._id });
+
             return res.status(200).json({
+                success: true,
+                message: "chat found",
+                chat,
+                messages
+            });
+
+        } catch (error) {
+            return res.status(500).json({
                 success: false,
-                message: "chat not found"
+                message: "internal server error"
+            });
+            console.log("error in getting chat : ", error.message);
+        }
+    }
+
+    export const getMessage = async (req, res) => {
+        const { chatId } = req.params;
+
+        const chat = await chatModel.findOne({
+            id: chatId,
+            user: req.user._id
+        })
+        if (!chat) {
+            return res.status(404).json({
+                message: "chat not founded"
             })
         }
 
-        const messages = await messageModel.find({ chat: chat._id });
+        const message = await messageModel.findOne({
+            chat: chatId
+        })
 
-        return res.status(200).json({
-            success: true,
-            message: "chat found",
-            chat,
-            messages
-        });
-
-    } catch (error) {
-        return res.status(500).json({
-            success: false,
-            message: "internal server error"
-        });
-        console.log("error in getting chat : ", error.message);
-    }
-}
-
-export const getMessage = async (req, res) => {
-    const { chatId } = req.params;
-
-    const chat = await chatModel.findOne({
-        id: chatId,
-        user: req.user._id
-    })
-    if (!chat) {
-        return res.status(404).json({
-            message: "chat not founded"
+        res.status(200).json({
+            message: "message retrive successfully"
         })
     }
 
-    const message = await messageModel.findOne({
-        chat: chatId
-    })
+    export const getDelete = async (req, res) => {
+        try {
+            const { chatId } = req.params;
+            const chat = await chatModel.findOneAndDelete({
+                _id: chatId,
+                user: req.user.id || req.user._id
+            });
 
-    res.status(200).json({
-        message: "message retrive successfully"
-    })
-}
+            if (!chat) {
+                return res.status(404).json({
+                    message: "chat not found"
+                });
+            }
 
-export const getDelete = async (req, res) => {
-    try {
-        const { chatId } = req.params;
-        const chat = await chatModel.findOneAndDelete({
-            _id: chatId,
-            user: req.user.id || req.user._id
-        });
+            await messageModel.deleteMany({
+                chat: chatId
+            });
 
-        if (!chat) {
-            return res.status(404).json({
-                message: "chat not found"
+            res.status(200).json({
+                success: true,
+                message: "chat deleted successfully"
+            });
+        } catch (error) {
+            console.log("error in deleting chat : ", error.message);
+            return res.status(500).json({
+                success: false,
+                message: "internal server error"
             });
         }
-
-        await messageModel.deleteMany({
-            chat: chatId
-        });
-
-        res.status(200).json({
-            success: true,
-            message: "chat deleted successfully"
-        });
-    } catch (error) {
-        console.log("error in deleting chat : ", error.message);
-        return res.status(500).json({
-            success: false,
-            message: "internal server error"
-        });
     }
-}

@@ -2,13 +2,13 @@ import axios from "axios";
 
 
 const api = axios.create({
-    baseURL: import.meta.env.VITE_API_URL + "/chat",
+    baseURL: process.env.NODE_ENV === "production" ? process.env.VITE_API_URL + "/chat" : "http://localhost:3000/api/" + "chat",
     withCredentials: true
 });
 
-export const sendMessageAPI = async (message, chatId) => {
+export const sendMessageAPI = async (message, chatId , searchEnable = false) => {
     try {
-        const response = await api.post("/send", { message, chat: chatId });
+        const response = await api.post("/send", { message, chat: chatId , searchEnable });
         return response.data;
     } catch (error) {
         console.log("Error in sendMessage api", error.message)

@@ -8,10 +8,11 @@ export const useChat = () => {
     const dispatch = useDispatch();
 
 
-    const handleSendMessage = async ({ message, chatId }) => {
+    const handleSendMessage = async ({ message, chatId, searchEnable = false }) => {
         try {
-            const response = await sendMessageAPI(message, chatId);
-            const { chatId: newChatId, aiMessage } = response
+            const response = await sendMessageAPI(message, chatId, searchEnable );
+            const { chat, aiMessage } = response
+            const newChatId = chat ? chat._id : undefined
             const finalChatId = chatId || newChatId
             if (!chatId) {
                 dispatch(createNewChat(

@@ -6,7 +6,7 @@ export const initlizeSocket = (server) => {
 
     io = new Server(server, {
         cors: {
-            origin: process.env.CLIENT_URL,
+            origin: process.env.NODE_ENV === "production" ? process.env.VITE_API_URL : "http://localhost:5173",
             credentials: true
         }
     });
