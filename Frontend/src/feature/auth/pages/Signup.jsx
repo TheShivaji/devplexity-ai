@@ -4,7 +4,7 @@ import { useAuth } from "../hook/useAuth";
 import { useSelector } from "react-redux";
 
 export default function Signup() {
-  const [form, setForm] = useState({ name: "", email: "", password: "" });
+  const [form, setForm] = useState({ username: "", email: "", password: "" });
   const user = useSelector(state => state.auth.user);
   const loading = useSelector(state => state.auth.loading);
   const { handleSignUp, error } = useAuth();
@@ -46,9 +46,9 @@ export default function Signup() {
             <p className="text-[11px] text-white/30 mb-1.5 tracking-wide uppercase">Full name</p>
             <input
               type="text"
-              name="name"
+              name="username"
               placeholder="Your name"
-              value={form.name}
+              value={form.username}
               onChange={handleChange}
               className="w-full bg-[#111111] border border-white/10 focus:border-blue-500/40 rounded-[9px] px-3.5 py-2.5 text-[13px] text-white/75 placeholder:text-white/22 outline-none transition-colors"
             />

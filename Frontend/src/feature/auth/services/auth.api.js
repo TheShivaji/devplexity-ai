@@ -1,7 +1,7 @@
 import axios from 'axios';
 
 const api = axios.create({
-    baseURL: process.env.NODE_ENV === "production" ? process.env.VITE_API_URL : "http://localhost:3000/api",
+    baseURL: import.meta.env.MODE === "production" ? import.meta.env.VITE_API_URL : "http://localhost:3000/api",
     withCredentials: true,
 });
 
@@ -10,7 +10,8 @@ export const signUp = async (userData) => {
         const response = await api.post('/auth/signup', userData);
         return response.data;
     } catch (error) {
-        console.log("Error in  signup api", error.message);
+        const backendError = error.response?.data?.message || error.message;
+        console.log("Error in  signup api:", backendError);
         throw error;
     }
 };

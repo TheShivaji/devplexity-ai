@@ -1,6 +1,6 @@
-import {useDispatch} from "react-redux";
-import {signUp , login , getMe} from "../services/auth.api";
-import {setUser , setLoading , setError} from "../auth.slice";
+import { useDispatch } from "react-redux";
+import { signUp, login, getMe } from "../services/auth.api";
+import { setUser, setLoading, setError } from "../auth.slice";
 
 export const useAuth = () => {
     const dispatch = useDispatch();
@@ -12,8 +12,9 @@ export const useAuth = () => {
             dispatch(setUser(response.user));
             return response;
         } catch (error) {
-            dispatch(setError(error.response?.data?.message || error.message));
-            console.log("Error in  signup hook", error.message);
+            const errorMsg = error.response?.data?.message || error.response?.data?.errors?.[0]?.msg || error.message;
+            dispatch(setError(errorMsg));
+            console.log("Error in  signup hook", errorMsg);
             throw error;
         }
     };
@@ -25,8 +26,9 @@ export const useAuth = () => {
             dispatch(setUser(response.user));
             return response;
         } catch (error) {
-            dispatch(setError(error.response?.data?.message || error.message));
-            console.log("Error in  login hook", error.message);
+            const errorMsg = error.response?.data?.message || error.response?.data?.errors?.[0]?.msg || error.message;
+            dispatch(setError(errorMsg));
+            console.log("Error in  login hook", errorMsg);
             throw error;
         }
     };

@@ -126,6 +126,8 @@ export const getMe = async (req, res) => {
     try {
         const user = await User.findById(req.user.id)
         if (!user) {
+            // Clear the invalid token cookie
+            res.cookie("token", "", { maxAge: 0 });
             return res.status(404).json({ success: false, message: "User not found" })
         }
         return res.status(200).json({
@@ -143,7 +145,7 @@ export const getMe = async (req, res) => {
 
 export const logout = async (req, res) => {
     try {
-        res.cookie("jwt", "", {
+        res.cookie("token", "", {
             sameSite: "none",
             secure: true,
             httpOnly: true,

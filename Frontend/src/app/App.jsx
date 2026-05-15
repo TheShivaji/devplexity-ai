@@ -7,7 +7,7 @@ import { useEffect } from 'react';
 const App = () => {
   const {handleGetMe} = useAuth();
   useEffect(() => {
-    handleGetMe();
+    handleGetMe().catch((err) => console.log("User not logged in or session expired."));
   }, []);
   return (
     <div>
