@@ -16,6 +16,8 @@ export const useAuth = () => {
             dispatch(setError(errorMsg));
             console.log("Error in  signup hook", errorMsg);
             throw error;
+        } finally {
+            dispatch(setLoading(false));
         }
     };
 
@@ -30,6 +32,8 @@ export const useAuth = () => {
             dispatch(setError(errorMsg));
             console.log("Error in  login hook", errorMsg);
             throw error;
+        } finally {
+            dispatch(setLoading(false));
         }
     };
 
@@ -43,6 +47,8 @@ export const useAuth = () => {
             dispatch(setError(error.response?.data?.message || error.message));
             console.log("Error in  getMe hook", error.message);
             throw error;
+        } finally {
+            dispatch(setLoading(false));
         }
     };
 
