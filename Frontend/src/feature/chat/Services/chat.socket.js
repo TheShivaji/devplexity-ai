@@ -5,7 +5,7 @@ let socket;
 export const initlizeSocket = () => {
 
     socket = io(
-        process.env.NODE_ENV === "production" ? process.env.VITE_API_URL : "http://localhost:3000",
+        import.meta.env.MODE === "production" ? import.meta.env.VITE_API_URL.replace('/api', '') : "http://localhost:3000",
         {
             withCredentials: true
         }
