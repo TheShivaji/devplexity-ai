@@ -3,7 +3,7 @@ import { Navigate } from 'react-router'
 
 const Protected = ({ children }) => {
     const user = useSelector(state => state.auth.user)
-    const loading = useSelector(state => state.auth.loading)
+    const loading = useSelector(state => state.auth.isLoading)
 
     if (loading) {
         return <div>Loading...</div>

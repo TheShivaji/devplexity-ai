@@ -6,7 +6,7 @@ import { useSelector } from "react-redux";
 export default function Signup() {
   const [form, setForm] = useState({ username: "", email: "", password: "" });
   const user = useSelector(state => state.auth.user);
-  const loading = useSelector(state => state.auth.loading);
+  const loading = useSelector(state => state.auth.isLoading);
   const { handleSignUp, error } = useAuth();
   const navigate = useNavigate();
 
@@ -14,6 +14,7 @@ export default function Signup() {
 
   const handleSubmit = async (e) => {
     e.preventDefault();
+    if (loading) return;
     try {
       await handleSignUp(form);
       navigate("/");
@@ -80,9 +81,12 @@ export default function Signup() {
 
           <button
             type="submit"
-            className="w-full py-2.5 mt-1 rounded-[9px] bg-white text-black text-[13px] font-semibold hover:bg-white/90 active:scale-[0.98] transition-all"
+            disabled={loading}
+            className={`w-full py-2.5 mt-1 rounded-[9px] text-[13px] font-semibold transition-all ${
+              loading ? "bg-white/50 text-black/50 cursor-not-allowed" : "bg-white text-black hover:bg-white/90 active:scale-[0.98]"
+            }`}
           >
-            Create account
+            {loading ? "Creating account..." : "Create account"}
           </button>
         </form>
 

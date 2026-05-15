@@ -1,9 +1,11 @@
 import { useState } from "react";
 import { Link, useNavigate } from "react-router-dom";
 import { useAuth } from "../hook/useAuth";
+import { useSelector } from "react-redux";
 
 export default function Login() {
   const [form, setForm] = useState({ email: "", password: "" });
+  const loading = useSelector(state => state.auth.isLoading);
   const { handleLogin, error } = useAuth();
   const navigate = useNavigate();
 
@@ -11,6 +13,7 @@ export default function Login() {
 
   const handleSubmit = async (e) => {
     e.preventDefault();
+    if (loading) return;
     try {
       await handleLogin(form);
       navigate("/");
@@ -64,9 +67,12 @@ export default function Login() {
 
           <button
             type="submit"
-            className="w-full py-2.5 mt-1 rounded-[9px] bg-white text-black text-[13px] font-semibold hover:bg-white/90 active:scale-[0.98] transition-all"
+            disabled={loading}
+            className={`w-full py-2.5 mt-1 rounded-[9px] text-[13px] font-semibold transition-all ${
+              loading ? "bg-white/50 text-black/50 cursor-not-allowed" : "bg-white text-black hover:bg-white/90 active:scale-[0.98]"
+            }`}
           >
-            Sign in
+            {loading ? "Signing in..." : "Sign in"}
           </button>
         </form>
 
