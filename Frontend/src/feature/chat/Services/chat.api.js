@@ -6,9 +6,9 @@ const api = axios.create({
     withCredentials: true
 });
 
-export const sendMessageAPI = async (message, chatId , searchEnable = false) => {
+export const sendMessageAPI = async (message, chatId , searchEnable = false , studyMode = false) => {
     try {
-        const response = await api.post("/send", { message, chat: chatId , searchEnable });
+        const response = await api.post("/send", { message, chat: chatId , searchEnable , studyMode });
         return response.data;
     } catch (error) {
         console.log("Error in sendMessage api", error.message)

@@ -1,6 +1,18 @@
 import React from 'react';
+import { useDispatch } from 'react-redux';
+import { useSelector } from 'react-redux';
+import { useChat } from '../hook/useChat';
+import { setCurrentChatId } from '../chat.slice';
 
-const Sidebar = ({ sidebarOpen, setSidebarOpen, chats, currentChatId, openChat, handleDeleteChat, handleLogout }) => {
+const Sidebar = ({ sidebarOpen, setSidebarOpen, chats, openChat, handleDeleteChat, handleLogout }) => {
+const chat = useChat();
+const currentChatId = useSelector((state) => state.chat.currentChatId);
+  const dispatch = useDispatch();
+  const handleNewChat = () => {
+    dispatch(setCurrentChatId(null));
+    openChat(null);
+    setSidebarOpen(false);
+  };
   return (
     <>
       {sidebarOpen && (
@@ -73,7 +85,20 @@ const Sidebar = ({ sidebarOpen, setSidebarOpen, chats, currentChatId, openChat, 
         </div>
 
         {/* Footer */}
-        <div className='px-3 py-2.5 border-t border-white/[0.06]'>
+
+        
+        <div className='px-3 py-2.5 border-t border-white/[0.06] flex flex-col gap-2'>
+        
+        <button 
+          onClick={() => handleNewChat()}
+          className='w-full flex items-center gap-2 px-2.5 py-[7px] rounded-[8px] border bg-transparent hover:text-white/90 text-[12px] transition-all cursor-pointer hover:bg-white/[0.05] hover:border-white/[0.10] text-white/70 hover:text-white/90 py-2.5 text-[13px] font-medium tracking-tight transition-all duration-150'
+        >
+          <svg width='14' height='14' viewBox='0 0 24 24' fill='none' stroke='currentColor' strokeWidth='2'>
+            <line x1='12' y1='5' x2='12' y2='19' />
+            <line x1='5' y1='12' x2='19' y2='12' />
+          </svg>
+          New chat
+        </button>
           <button
             onClick={handleLogout}
             className='w-full flex items-center gap-2 px-2.5 py-[7px] rounded-[8px] border border-red-500/[0.15] bg-transparent text-red-400/60 hover:bg-red-500/[0.08] hover:text-red-400 text-[12px] transition-all'

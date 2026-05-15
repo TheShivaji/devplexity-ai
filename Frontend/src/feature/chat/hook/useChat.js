@@ -8,9 +8,9 @@ export const useChat = () => {
     const dispatch = useDispatch();
 
 
-    const handleSendMessage = async ({ message, chatId, searchEnable = false }) => {
+    const handleSendMessage = async ({ message, chatId, searchEnable = false , studyMode = false }) => {
         try {
-            const response = await sendMessageAPI(message, chatId, searchEnable );
+            const response = await sendMessageAPI(message, chatId, searchEnable , studyMode );
             const { chat, aiMessage } = response
             const newChatId = chat ? chat._id : undefined
             const finalChatId = chatId || newChatId
@@ -33,7 +33,7 @@ export const useChat = () => {
                 content: aiMessage.content,
                 role: aiMessage.role
             }))
-
+            return response;
         } catch (error) {
             console.log("Error in handleSendMessage", error.message)
         }
