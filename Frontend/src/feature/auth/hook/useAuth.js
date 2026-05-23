@@ -1,20 +1,24 @@
 import { useDispatch } from "react-redux";
+import toast from "react-hot-toast";
 import { signUp, login, getMe } from "../services/auth.api";
 import { setUser, setLoading, setError } from "../auth.slice";
+import { getAuthErrorMessage } from "../utils/getAuthErrorMessage";
 
 export const useAuth = () => {
     const dispatch = useDispatch();
 
     const handleSignUp = async (userData) => {
         try {
+            dispatch(setError(null));
             dispatch(setLoading(true));
             const response = await signUp(userData);
             dispatch(setUser(response.user));
+            toast.success("Account created successfully");
             return response;
         } catch (error) {
-            const errorMsg = error.response?.data?.message || error.response?.data?.errors?.[0]?.msg || error.message;
+            const errorMsg = getAuthErrorMessage(error);
             dispatch(setError(errorMsg));
-            console.log("Error in  signup hook", errorMsg);
+            toast.error(errorMsg);
             throw error;
         } finally {
             dispatch(setLoading(false));
@@ -23,14 +27,16 @@ export const useAuth = () => {
 
     const handleLogin = async (credentials) => {
         try {
+            dispatch(setError(null));
             dispatch(setLoading(true));
             const response = await login(credentials);
             dispatch(setUser(response.user));
+            toast.success("Welcome back!");
             return response;
         } catch (error) {
-            const errorMsg = error.response?.data?.message || error.response?.data?.errors?.[0]?.msg || error.message;
+            const errorMsg = getAuthErrorMessage(error);
             dispatch(setError(errorMsg));
-            console.log("Error in  login hook", errorMsg);
+            toast.error(errorMsg);
             throw error;
         } finally {
             dispatch(setLoading(false));
@@ -44,8 +50,7 @@ export const useAuth = () => {
             dispatch(setUser(response.user));
             return response;
         } catch (error) {
-            dispatch(setError(error.response?.data?.message || error.message));
-            console.log("Error in  getMe hook", error.message);
+            dispatch(setError(getAuthErrorMessage(error)));
             throw error;
         } finally {
             dispatch(setLoading(false));

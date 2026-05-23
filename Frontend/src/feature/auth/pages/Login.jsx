@@ -2,11 +2,12 @@ import { useState } from "react";
 import { Link, useNavigate } from "react-router-dom";
 import { useAuth } from "../hook/useAuth";
 import { useSelector } from "react-redux";
+import toast from "react-hot-toast";
 
 export default function Login() {
   const [form, setForm] = useState({ email: "", password: "" });
   const loading = useSelector(state => state.auth.isLoading);
-  const { handleLogin, error } = useAuth();
+  const { handleLogin } = useAuth();
   const navigate = useNavigate();
 
   const handleChange = (e) => setForm({ ...form, [e.target.name]: e.target.value });
@@ -17,8 +18,8 @@ export default function Login() {
     try {
       await handleLogin(form);
       navigate("/");
-    } catch (err) {
-      console.log("Login Error:", err);
+    } catch (error){
+      toast.error(error.message)// Error toast shown in useAuth
     }
   };
 
@@ -62,8 +63,6 @@ export default function Login() {
               className="w-full bg-[#111111] border border-white/10 focus:border-blue-500/40 rounded-[9px] px-3.5 py-2.5 text-[13px] text-white/75 placeholder:text-white/22 outline-none transition-colors"
             />
           </div>
-
-          {error && <p className="text-[12px] text-red-400 text-center">{error}</p>}
 
           <button
             type="submit"

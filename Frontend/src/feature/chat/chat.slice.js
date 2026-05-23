@@ -29,10 +29,10 @@ const chatSlice = createSlice({
             state.currentChatId = action.payload;
         },
         addMessage: (state, action) => {
-            const { chatId, content, role } = action.payload;
+            const { chatId, content, role, id } = action.payload;
             if (state.chats[chatId]) {
                 state.chats[chatId].messages.push({
-                    id: Date.now().toString() + Math.random(),
+                    id: id ?? `${Date.now()}-${Math.random()}`,
                     content,
                     role
                 });

@@ -1,32 +1,24 @@
-import { ChatGoogleGenerativeAI } from "@langchain/google-genai";
-import { ChatMistralAI } from "@langchain/mistralai"
-import { HumanMessage, SystemMessage, AIMessage, tool, createAgent } from "langchain";
+import { ChatGroq } from "@langchain/groq";
+import { HumanMessage, SystemMessage, AIMessage } from "langchain";
 import { searchWeb } from "./internet.service.js";
-import * as z from "zod";
 
-
-const geminiModel = new ChatMistralAI({
-    model: "open-mixtral-8x22b",
-    apiKey: process.env.MISTRAL_API_KEY
+const chatModel = new ChatGroq({
+    model: "llama-3.3-70b-versatile",
+    apiKey: process.env.GROQ_API_KEY,
 });
-const mistralModel = new ChatMistralAI({
-    model: "mistral-medium-latest",
-    apiKey: process.env.MISTRAL_API_KEY
-})
-
-const searchWebTool = tool(searchWeb, {
-    name: "searchWeb",
-    description: "search the web for information",
-    schema: z.object({
-        query: z.string().describe("the query to search the web for")
-    })
-})
-
-const agent = createAgent({
-    model: geminiModel,
-    tools: [searchWebTool],
-
+const titleModel = new ChatGroq({
+    model: "llama-3.3-70b-versatile",
+    apiKey: process.env.GROQ_API_KEY,
 });
+
+const formatChatMessages = (messages, systemPrompt) => [
+    new SystemMessage(systemPrompt),
+    ...messages.flatMap((msg) => {
+        if (msg.role === "user") return [new HumanMessage(msg.content)];
+        if (msg.role === "ai") return [new AIMessage(msg.content)];
+        return [];
+    }),
+];
 
 export async function getAIMessage(messages, searchEnable = false, studyMode = false) {
     console.log(messages)
@@ -43,28 +35,33 @@ export async function getAIMessage(messages, searchEnable = false, studyMode = f
     Do not hallucinate future facts.
   `
 
-    const formattedMessages = [
-        new SystemMessage(SystemPrompt),
-        ...(messages.map(msg => {
-            if (msg.role === "user") return new HumanMessage(msg.content)
-            if (msg.role === "ai") return new AIMessage(msg.content)
-        }))
-    ]
-
     if (searchEnable) {
-        // Agent mode — Tavily web search active
-        const response = await agent.invoke({ messages: formattedMessages })
-        return response.messages[response.messages.length - 1].text
-    } else {
-        // Simple mode — direct model, no search
-        const response = await geminiModel.invoke(formattedMessages)
-        return response.text
+        const lastUserMessage = [...messages].reverse().find((msg) => msg.role === "user");
+        const query = lastUserMessage?.content?.trim();
+        if (!query) {
+            throw new Error("No user message found for web search");
+        }
+
+        const searchResults = await searchWeb({ query });
+        const searchSystemPrompt = `${SystemPrompt}
+Use the web search results below to answer. Cite facts from the results when possible. If results are empty or unhelpful, say you could not find reliable information.
+
+Web search results:
+${searchResults}`;
+
+        const response = await chatModel.invoke(
+            formatChatMessages(messages, searchSystemPrompt)
+        );
+        return response.text;
     }
+
+    const response = await chatModel.invoke(formatChatMessages(messages, SystemPrompt));
+    return response.text;
 }
 
 export const getTittle = async (message) => {
     try {
-        const title = await mistralModel.invoke([
+        const title = await titleModel.invoke([
             new SystemMessage("You are a deterministic chat title generator, Generate ONLY one short title max 5 words, Use simple English, Do not use creative variations,Base title only on the main topic of the conversation."),
             new HumanMessage(`
                 generate title for this chat conversation based on first user message only 

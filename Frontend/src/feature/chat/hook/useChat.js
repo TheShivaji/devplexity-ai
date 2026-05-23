@@ -2,7 +2,7 @@ import { initlizeSocket } from "../Services/chat.socket.js";
 
 import { useDispatch } from "react-redux";
 import { getChatsAPI, getMessagesAPI, sendMessageAPI, deleteChatAPI } from "../Services/chat.api.js";
-import { setChats, setCurrentChatId, addMessage, deleteChat, createNewChat, setLoading, setError } from "../chat.slice.js";
+import { setChats, setCurrentChatId, addMessage, deleteChat, createNewChat, setLoading } from "../chat.slice.js";
 
 export const useChat = () => {
     const dispatch = useDispatch();
@@ -30,8 +30,9 @@ export const useChat = () => {
             }))
             dispatch(addMessage({
                 chatId: finalChatId,
+                id: aiMessage._id?.toString(),
                 content: aiMessage.content,
-                role: aiMessage.role
+                role: aiMessage.role === "ai" ? "assistant" : aiMessage.role
             }))
             return response;
         } catch (error) {
@@ -65,14 +66,14 @@ export const useChat = () => {
             const data = await getMessagesAPI(chatId)
             const { messages } = data
             const formatedMessages = messages.map((message) => ({
-                id: message.id,
+                id: message._id?.toString() ?? message.id,
                 content: message.content,
-                role: message.role,
+                role: message.role === "ai" ? "assistant" : message.role,
             }))
-            console.log("formatedMessages:", formatedMessages)
             formatedMessages.forEach((msg) => {
                 dispatch(addMessage({
                     chatId,
+                    id: msg.id,
                     content: msg.content,
                     role: msg.role
                 }));
