@@ -26,6 +26,46 @@ The AI backend runs a **LangChain Agent** powered by **Mixtral 8x22B**. When web
 
 ---
 
+## 🏗️ System Architecture
+
+```mermaid
+graph TD
+
+U[👤 User]
+
+U --> FE[⚛️ React Frontend]
+
+FE --> RTK[📦 Redux Toolkit]
+
+RTK --> API[🚀 Express Backend]
+
+API --> AUTH[🔐 JWT Authentication]
+
+API --> CHAT[💬 Chat Controller]
+
+API --> STUDY[📚 Study Mode]
+
+CHAT --> AGENT[🧠 LangChain Agent]
+
+AGENT --> MIXTRAL[🤖 Mixtral 8x22B]
+
+AGENT --> TAVILY[🌐 Tavily Search Tool]
+
+CHAT --> TITLE[✍️ Mistral Title Generator]
+
+CHAT --> DB[(🍃 MongoDB)]
+
+STUDY --> MIXTRAL
+
+AUTH --> DB
+
+DB --> API
+
+API --> FE
+```
+
+---
+
 ## ✨ Features
 
 ### ✅ Done
@@ -184,43 +224,108 @@ Backend → `http://localhost:3000`
 
 ## 🧠 How the AI Agent Works
 
+```mermaid
+graph TD
+
+A[👤 User Message]
+
+A --> B[🚀 Backend API]
+
+B --> C[📜 Fetch Chat History]
+
+C --> D[🧠 LangChain Agent]
+
+D --> E{🌐 Web Search Enabled?}
+
+E -->|Yes| F[🔍 Tavily Search]
+
+F --> G[📄 Top Search Results]
+
+G --> H[🤖 Mixtral 8x22B]
+
+E -->|No| H
+
+H --> I[💬 Generate Response]
+
+I --> J[💾 Save Message]
+
+J --> K{🆕 New Chat?}
+
+K -->|Yes| L[✍️ Mistral Title Generator]
+
+K -->|No| M[📤 Return Response]
+
+L --> M
+
+M --> N[📦 Redux Store]
+
+N --> O[🖥️ React UI]
 ```
-User sends a message
-        ↓
-Backend fetches full chat history from MongoDB
-        ↓
-LangChain Agent (Mixtral 8x22B) receives history
-        ↓
-searchEnable = true?          searchEnable = false?
-        ↓                              ↓
-Agent calls Tavily tool        Direct model response
-(top 5 web results)
-        ↓
-Final response generated + saved to MongoDB
-        ↓
-If new chat → Mistral generates title
-        ↓
-Response → Redux → UI re-renders
-```
+
+---
 
 ## 📚 How Study Mode Works
 
+```mermaid
+graph TD
+
+A[📝 Enter Topic]
+
+A --> B[📚 Study Mode]
+
+B --> C[🤖 Mixtral 8x22B]
+
+C --> D[📦 Structured JSON Output]
+
+D --> E[🃏 Flashcards]
+
+D --> F[🧪 Quiz]
+
+E --> G[🔄 Flip Cards]
+
+F --> H[✅ Answer Questions]
+
+H --> I[📊 Calculate Score]
+
+I --> J[🎯 Show Result]
 ```
-User enters topic → Generate click
-        ↓
-studyMode = true → SystemPrompt forces JSON output
-        ↓
-Mixtral returns:
-{
-  topic, 
-  flashcards: [{ question, answer } x5],
-  quiz: [{ question, options[4], correct } x5]
-}
-        ↓
-Frontend parses JSON → renders flashcards + quiz
-        ↓
-Tap card → flip    |    Click option → green/red
-All answered → Score shown
+
+---
+
+## 🔄 Request Lifecycle
+
+```mermaid
+sequenceDiagram
+
+participant User
+participant React
+participant Backend
+participant LangChain
+participant Tavily
+participant MongoDB
+
+User->>React: Send Message
+
+React->>Backend: POST /chat
+
+Backend->>MongoDB: Load History
+
+MongoDB-->>Backend: Previous Messages
+
+Backend->>LangChain: Execute Agent
+
+alt Search Enabled
+    LangChain->>Tavily: Search Query
+    Tavily-->>LangChain: Results
+end
+
+LangChain-->>Backend: Final Response
+
+Backend->>MongoDB: Save Message
+
+Backend-->>React: Response
+
+React-->>User: Display Result
 ```
 
 ---
