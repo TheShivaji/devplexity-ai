@@ -45,15 +45,12 @@ export const useAuth = () => {
 
     const handleGetMe = async () => {
         try {
-            dispatch(setLoading(true));
             const response = await getMe();
             dispatch(setUser(response.user));
             return response;
         } catch (error) {
             dispatch(setError(getAuthErrorMessage(error)));
             throw error;
-        } finally {
-            dispatch(setLoading(false));
         }
     };
 
