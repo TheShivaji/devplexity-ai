@@ -1,16 +1,16 @@
 import express from 'express';
-import { loginValidator, registerValidator } from '../validators/auth.validators.js';
-import { signup , login , verifyOtp , getMe , logout} from '../controllers/auth.controller.js';
-import { protectRoute } from '../middleware/auth.middlewares.js';
+import { loginValidator, registerValidator } from '../validators/auth.validator.js';
+import { signup, login, verifyOtp, getMe, logout } from '../controllers/auth.controller.js';
+import { protectRoute } from '../middleware/auth.middleware.js';
 
 const authRouter = express.Router();
 
-authRouter.post('/signup' , registerValidator ,  registerValidator,signup);
-authRouter.post('/login' , loginValidator ,   login);
+authRouter.post('/signup', registerValidator, registerValidator, signup);
+authRouter.post('/login', loginValidator, login);
 
-authRouter.post('/verify-otp' , verifyOtp);
-authRouter.post('/logout' , logout);
-authRouter.get('/get-me' , protectRoute , getMe);
+authRouter.post('/verify-otp', verifyOtp);
+authRouter.post('/logout', logout);
+authRouter.get('/get-me', protectRoute, getMe);
 
 
 

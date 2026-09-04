@@ -2,41 +2,63 @@ import { initlizeSocket } from "../Services/chat.socket.js";
 
 import { useDispatch } from "react-redux";
 import { getChatsAPI, getMessagesAPI, sendMessageAPI, deleteChatAPI } from "../Services/chat.api.js";
-import { setChats, setCurrentChatId, addMessage, deleteChat, createNewChat, setLoading } from "../chat.slice.js";
+import { setChats, setCurrentChatId, addMessage, deleteChat, createNewChat, replaceTempChat, setLoading } from "../chat.slice.js";
 
 export const useChat = () => {
     const dispatch = useDispatch();
 
-
     const handleSendMessage = async ({ message, chatId, searchEnable = false , studyMode = false }) => {
-        try {
-            const response = await sendMessageAPI(message, chatId, searchEnable , studyMode );
-            const { chat, aiMessage } = response
-            const newChatId = chat ? chat._id : undefined
-            const finalChatId = chatId || newChatId
-            if (!chatId) {
-                dispatch(createNewChat(
-                    {
-                        chatId: newChatId,
-                        title: response.title
-                    }
-                ))
-            }
-            dispatch(setCurrentChatId(finalChatId))
+        let activeChatId = chatId;
+        let tempChatId = null;
+
+        // Optimistically dispatch user message IMMEDIATELY to UI
+        if (activeChatId) {
             dispatch(addMessage({
-                chatId: finalChatId,
+                chatId: activeChatId,
                 content: message,
                 role: "user"
-            }))
+            }));
+        } else {
+            tempChatId = `temp_${Date.now()}`;
+            activeChatId = tempChatId;
+            dispatch(createNewChat({
+                chatId: tempChatId,
+                title: message.length > 30 ? message.slice(0, 30) + '...' : message
+            }));
+            dispatch(setCurrentChatId(tempChatId));
+            dispatch(addMessage({
+                chatId: tempChatId,
+                content: message,
+                role: "user"
+            }));
+        }
+
+        try {
+            const response = await sendMessageAPI(message, chatId, searchEnable , studyMode );
+            const { chat, aiMessage } = response;
+            const realChatId = chat ? (chat._id || chat.id) : activeChatId;
+
+            if (tempChatId && realChatId) {
+                dispatch(replaceTempChat({
+                    tempChatId,
+                    realChatId,
+                    title: response.title || message.slice(0, 30)
+                }));
+            }
+
+            const finalChatId = realChatId || activeChatId;
+
             dispatch(addMessage({
                 chatId: finalChatId,
-                id: aiMessage._id?.toString(),
-                content: aiMessage.content,
-                role: aiMessage.role === "ai" ? "assistant" : aiMessage.role
-            }))
+                id: aiMessage?._id?.toString() || aiMessage?.id,
+                content: aiMessage?.content || '',
+                role: aiMessage?.role === "ai" ? "assistant" : (aiMessage?.role || "assistant")
+            }));
+
             return response;
         } catch (error) {
-            console.log("Error in handleSendMessage", error.message)
+            console.log("Error in handleSendMessage", error.message);
+            throw error;
         }
     }
 

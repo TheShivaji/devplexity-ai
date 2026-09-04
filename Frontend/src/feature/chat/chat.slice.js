@@ -41,6 +41,22 @@ const chatSlice = createSlice({
         deleteChat: (state, action) => {
             delete state.chats[action.payload];
         },
+        replaceTempChat: (state, action) => {
+            const { tempChatId, realChatId, title } = action.payload;
+            if (state.chats[tempChatId]) {
+                const existingMessages = state.chats[tempChatId].messages;
+                delete state.chats[tempChatId];
+                state.chats[realChatId] = {
+                    id: realChatId,
+                    title: title || 'New Chat',
+                    messages: existingMessages,
+                    lastUpdate: new Date().toISOString()
+                };
+                if (state.currentChatId === tempChatId) {
+                    state.currentChatId = realChatId;
+                }
+            }
+        },
         setLoading : (state, action) => {
             state.isLoading = action.payload;
         },
@@ -50,5 +66,5 @@ const chatSlice = createSlice({
     }
 })
 
-export const { createNewChat, setChats, setCurrentChatId, addMessage, deleteChat , setLoading , setError } = chatSlice.actions;
+export const { createNewChat, setChats, setCurrentChatId, addMessage, deleteChat, replaceTempChat, setLoading, setError } = chatSlice.actions;
 export default chatSlice.reducer;

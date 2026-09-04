@@ -3,11 +3,11 @@ import { HumanMessage, SystemMessage, AIMessage } from "langchain";
 import { searchWeb } from "./internet.service.js";
 
 const chatModel = new ChatGroq({
-    model: "llama-3.3-70b-versatile",
+    model: 'openai/gpt-oss-120b',
     apiKey: process.env.GROQ_API_KEY,
 });
 const titleModel = new ChatGroq({
-    model: "llama-3.3-70b-versatile",
+    model: 'openai/gpt-oss-20b',
     apiKey: process.env.GROQ_API_KEY,
 });
 

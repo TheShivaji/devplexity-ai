@@ -1,22 +1,35 @@
 import React from 'react';
+import { Menu, Sparkles } from 'lucide-react';
 
 const Topbar = ({ setSidebarOpen, currentChatId, chats }) => {
+  const activeTitle = currentChatId ? chats[currentChatId]?.title || 'Conversation' : 'New Chat';
+
   return (
-    <header className='h-[46px] shrink-0 flex items-center gap-2.5 px-5 border-b border-white/[0.07] bg-[#0f0f0f]'>
-      <button
-        onClick={() => setSidebarOpen(true)}
-        className='md:hidden text-white/35 hover:text-white/65 transition-colors mr-1'
-      >
-        <svg width='17' height='17' viewBox='0 0 24 24' fill='none' stroke='currentColor' strokeWidth='2'>
-          <line x1='3' y1='6' x2='21' y2='6'/>
-          <line x1='3' y1='12' x2='21' y2='12'/>
-          <line x1='3' y1='18' x2='21' y2='18'/>
-        </svg>
-      </button>
-      <div className='w-[5px] h-[5px] rounded-full bg-blue-500 shrink-0' />
-      <span className='text-[12.5px] text-white/38 tracking-tight truncate'>
-        {currentChatId ? chats[currentChatId]?.title || 'Conversation' : 'New thread'}
-      </span>
+    <header className="h-[44px] shrink-0 flex items-center justify-between px-4 border-b border-white/[0.05] bg-[#09090b]">
+      <div className="flex items-center gap-3 min-w-0">
+        <button
+          type="button"
+          onClick={() => setSidebarOpen(true)}
+          aria-label="Open sidebar menu"
+          className="md:hidden p-1 text-zinc-400 hover:text-white transition-colors rounded-md hover:bg-white/[0.06]"
+        >
+          <Menu className="w-4 h-4" />
+        </button>
+
+        <div className="flex items-center gap-2 min-w-0">
+          <span className="w-1.5 h-1.5 rounded-full bg-purple-400 shrink-0" />
+          <span className="text-[12.5px] font-medium text-zinc-400 truncate tracking-tight">
+            {activeTitle}
+          </span>
+        </div>
+      </div>
+
+      <div className="flex items-center gap-2">
+        <div className="flex items-center gap-1.5 px-2.5 py-0.5 rounded-full bg-purple-500/[0.08] border border-purple-500/15 text-[11px] font-medium text-purple-300">
+          <Sparkles className="w-3 h-3 text-purple-400" />
+          <span>Devplexity AI</span>
+        </div>
+      </div>
     </header>
   );
 };
